@@ -5,6 +5,9 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const uniqueValidator = require('mongoose-unique-validator');
+const fetch = require('node-fetch');
+const { Translate } = require('@google-cloud/translate').v2;
+const translate = new Translate({ key:'AIzaSyDbys-WKbYFUL1DhBhu1spjdpeadwxLRiI'});
 
 // Carregar variáveis de ambiente
 dotenv.config();
@@ -300,5 +303,16 @@ app.post('/login', async(req, res) => {
         res.status(200).json({ token });
     } catch (error) {
         res.status(500).send("Erro ao realizar login");
+    }
+});
+
+app.post('/translate', async (req, res) => {
+    try {
+        const { text, target } = req.body;
+        const [translation] = await translate.translate(text, target);
+        res.json({ translation });
+    } catch (error) {
+        console.error('Erro na tradução:', error);
+        res.status(500).json({ error: 'Erro ao traduzir' });
     }
 });
